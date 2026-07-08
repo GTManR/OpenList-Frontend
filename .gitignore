@@ -5,5 +5,7 @@ dist
 !/src/lang/zh-CN/
 .DS_Store
 .idea
+.vscode
 .test
 .codebuddy
+crowdin.env.example
