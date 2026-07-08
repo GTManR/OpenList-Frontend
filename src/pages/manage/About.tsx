@@ -5,7 +5,7 @@ import { useT, useManageTitle } from "~/hooks"
 const fetchReadme = async () =>
   await (
     await fetch(
-      "https://raw.githubusercontent.com/OpenListTeam/OpenList/main/README.md",
+      "https://raw.githubusercontent.com/GTManR/OpenList/main/README.md",
     )
   ).text()
 

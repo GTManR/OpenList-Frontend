@@ -8,7 +8,7 @@ export const setSettings = (items: Record<string, string>) => {
   })
   const version = settings["version"] || "Unknown"
   console.log(
-    `%c OpenList %c ${version} %c https://github.com/OpenListTeam/OpenList`,
+    `%c OpenList %c ${version} %c https://github.com/GTManR/OpenList`,
     "color: #fff; background: #5f5f5f",
     "color: #fff; background: #70c6be",
     "",

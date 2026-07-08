@@ -16,6 +16,7 @@ type PasswordProps = {
   password: () => string
   setPassword: (s: string) => void
   enterCallback: () => void
+  submitDisabled?: boolean
   captcha?: JSXElement
   children?: JSXElement
 }
@@ -40,7 +41,7 @@ const Password = (props: PasswordProps) => {
         value={props.password()}
         background={useColorModeValue("$neutral3", "$neutral2")()}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (e.key === "Enter" && !props.submitDisabled) {
             props.enterCallback()
           }
         }}
@@ -60,7 +61,10 @@ const Password = (props: PasswordProps) => {
           <Button colorScheme="neutral" onClick={back}>
             {t("global.back")}
           </Button>
-          <Button onClick={() => props.enterCallback()}>
+          <Button
+            disabled={props.submitDisabled}
+            onClick={() => props.enterCallback()}
+          >
             {t("global.ok")}
           </Button>
         </HStack>

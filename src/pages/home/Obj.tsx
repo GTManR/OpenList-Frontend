@@ -13,6 +13,7 @@ import {
 import { Error, FullLoading, LinkWithBase } from "~/components"
 import { useObjTitle, usePath, useRouter, useT } from "~/hooks"
 import {
+  folderTurnstileToken,
   getPagination,
   getSetting,
   objStore,
@@ -28,6 +29,7 @@ import {
   TurnstileCaptcha,
   TurnstileCaptchaRef,
 } from "~/pages/login/TurnstileCaptcha"
+import { notify } from "~/utils"
 
 const Folder = lazy(() => import("./folder/Folder"))
 const File = lazy(() => import("./file/File"))
@@ -44,7 +46,18 @@ export const Obj = () => {
   const { pathname, searchParams, isShare, to } = useRouter()
   const { handlePathChange, refresh } = usePath()
   const turnstileSiteKey = () => getSetting("turnstile_site_key")
+  const turnstileRequired = () => !!turnstileSiteKey()
   let turnstileRef: TurnstileCaptchaRef | undefined
+  const submitPassword = async () => {
+    if (turnstileRequired() && !folderTurnstileToken()) {
+      notify.error(t("login.turnstile_required"))
+      return
+    }
+    await refresh(true)
+    // token is single-use; refresh it if we stay on the password form
+    setFolderTurnstileToken("")
+    turnstileRef?.reset()
+  }
   const pagination = getPagination()
   const page = createMemo(() => {
     return pagination.type === "pagination"
@@ -125,13 +138,8 @@ export const Obj = () => {
               }
               password={password}
               setPassword={setPassword}
-              enterCallback={async () => {
-                await refresh(true)
-                // the Turnstile token is single-use; refresh it so the next
-                // attempt (if the password was wrong) has a valid one ready
-                setFolderTurnstileToken("")
-                turnstileRef?.reset()
-              }}
+              enterCallback={submitPassword}
+              submitDisabled={turnstileRequired() && !folderTurnstileToken()}
               captcha={
                 <Show when={turnstileSiteKey()}>
                   <TurnstileCaptcha

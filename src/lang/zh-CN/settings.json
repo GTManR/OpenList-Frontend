@@ -136,6 +136,8 @@
   "sso_organization_name": "组织名称",
   "text_types": "文本类型",
   "token": "令牌",
+  "turnstile_secret_key": "Turnstile 私钥",
+  "turnstile_site_key": "Turnstile 站点密钥",
   "transmission_seedtime": "Transmission 做种时间",
   "transmission_uri": "Transmission URI",
   "upload_task_threads_num": "上传任务线程数",
