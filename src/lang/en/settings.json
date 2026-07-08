@@ -136,6 +136,8 @@
   "sso_organization_name": "SSO organization name",
   "text_types": "Text types",
   "token": "Token",
+  "turnstile_secret_key": "Turnstile secret key",
+  "turnstile_site_key": "Turnstile site key",
   "transmission_seedtime": "Transmission seedtime",
   "transmission_uri": "Transmission uri",
   "upload_task_threads_num": "Upload task threads num",

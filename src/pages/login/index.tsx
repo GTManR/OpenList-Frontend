@@ -29,6 +29,7 @@ import LoginBg from "./LoginBg"
 import { createStorageSignal } from "@solid-primitives/storage"
 import { getSetting, getSettingBool } from "~/store"
 import { SSOLogin } from "./SSOLogin"
+import { TurnstileCaptcha, TurnstileCaptchaRef } from "./TurnstileCaptcha"
 import { IoFingerPrint } from "solid-icons/io"
 const supported = () =>
   !!globalThis.PublicKeyCredential?.parseRequestOptionsFromJSON
@@ -52,21 +53,26 @@ const Login = () => {
   const [useauthn, setuseauthn] = createSignal(false)
   const [remember, setRemember] = createStorageSignal("remember-pwd", "false")
   const [useLdap, setUseLdap] = createSignal(false)
+  const [needOpt, setNeedOpt] = createSignal(false)
+  const turnstileSiteKey = () => getSetting("turnstile_site_key")
+  const [turnstileToken, setTurnstileToken] = createSignal("")
+  let turnstileRef: TurnstileCaptchaRef | undefined
+  const turnstileRequired = () =>
+    !!turnstileSiteKey() && !needOpt() && !useauthn()
   const [loading, data] = useLoading(
     async (): Promise<Resp<{ token: string }>> => {
-      if (useLdap()) {
-        return r.post("/auth/login/ldap", {
-          username: username(),
-          password: password(),
-          otp_code: opt(),
-        })
-      } else {
-        return r.post("/auth/login/hash", {
-          username: username(),
-          password: hashPwd(password()),
-          otp_code: opt(),
-        })
+      const payload: Record<string, string> = {
+        username: username(),
+        password: useLdap() ? password() : hashPwd(password()),
+        otp_code: opt(),
       }
+      if (turnstileToken()) {
+        payload.turnstile_token = turnstileToken()
+      }
+      if (useLdap()) {
+        return r.post("/auth/login/ldap", payload)
+      }
+      return r.post("/auth/login/hash", payload)
     },
   )
   const [, postauthnlogin] = useFetch(
@@ -186,6 +192,10 @@ const Login = () => {
   })
 
   const Login = async () => {
+    if (turnstileRequired() && !turnstileToken()) {
+      notify.error(t("login.turnstile_required"))
+      return
+    }
     if (!useauthn()) {
       if (remember() === "true") {
         localStorage.setItem("username", username())
@@ -211,13 +221,14 @@ const Login = () => {
           } else {
             notify.error(msg)
           }
+          setTurnstileToken("")
+          turnstileRef?.reset()
         },
       )
     } else {
       await AuthnLogin()
     }
   }
-  const [needOpt, setNeedOpt] = createSignal(false)
   const ldapLoginEnabled = getSettingBool("ldap_login_enabled")
   const ldapLoginTips = getSetting("ldap_login_tips")
   if (ldapLoginEnabled) {
@@ -299,6 +310,20 @@ const Login = () => {
               {t("login.forget")}
             </Text>
           </Flex>
+          <Show when={turnstileRequired()}>
+            <TurnstileCaptcha
+              siteKey={turnstileSiteKey()}
+              ref={(ref) => {
+                turnstileRef = ref
+              }}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken("")}
+              onError={() => {
+                setTurnstileToken("")
+                notify.error(t("login.turnstile_error"))
+              }}
+            />
+          </Show>
         </Show>
         <HStack w="$full" spacing="$2">
           <Show when={!useauthn()}>
@@ -317,7 +342,12 @@ const Login = () => {
               {t("login.clear")}
             </Button>
           </Show>
-          <Button w="$full" loading={loading()} onClick={Login}>
+          <Button
+            w="$full"
+            loading={loading()}
+            disabled={turnstileRequired() && !turnstileToken()}
+            onClick={Login}
+          >
             {t("login.login")}
           </Button>
         </HStack>
