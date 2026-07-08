@@ -14,14 +14,20 @@ import { Error, FullLoading, LinkWithBase } from "~/components"
 import { useObjTitle, usePath, useRouter, useT } from "~/hooks"
 import {
   getPagination,
+  getSetting,
   objStore,
   password,
   recordHistory,
   setPassword,
+  setFolderTurnstileToken,
   /*layout,*/ State,
   me,
 } from "~/store"
 import { UserMethods } from "~/types"
+import {
+  TurnstileCaptcha,
+  TurnstileCaptchaRef,
+} from "~/pages/login/TurnstileCaptcha"
 
 const Folder = lazy(() => import("./folder/Folder"))
 const File = lazy(() => import("./file/File"))
@@ -37,6 +43,8 @@ export const Obj = () => {
   const cardBg = useColorModeValue("white", "$neutral3")
   const { pathname, searchParams, isShare, to } = useRouter()
   const { handlePathChange, refresh } = usePath()
+  const turnstileSiteKey = () => getSetting("turnstile_site_key")
+  let turnstileRef: TurnstileCaptchaRef | undefined
   const pagination = getPagination()
   const page = createMemo(() => {
     return pagination.type === "pagination"
@@ -117,7 +125,24 @@ export const Obj = () => {
               }
               password={password}
               setPassword={setPassword}
-              enterCallback={() => refresh(true)}
+              enterCallback={async () => {
+                await refresh(true)
+                // the Turnstile token is single-use; refresh it so the next
+                // attempt (if the password was wrong) has a valid one ready
+                setFolderTurnstileToken("")
+                turnstileRef?.reset()
+              }}
+              captcha={
+                <Show when={turnstileSiteKey()}>
+                  <TurnstileCaptcha
+                    siteKey={turnstileSiteKey()}
+                    ref={(ref) => (turnstileRef = ref)}
+                    onSuccess={(token) => setFolderTurnstileToken(token)}
+                    onExpire={() => setFolderTurnstileToken("")}
+                    onError={() => setFolderTurnstileToken("")}
+                  />
+                </Show>
+              }
             >
               <Show when={!isShare()}>
                 <Text>{t("global.have_account")}</Text>

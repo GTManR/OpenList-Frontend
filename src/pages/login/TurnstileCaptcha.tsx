@@ -73,6 +73,7 @@ export const TurnstileCaptcha = (props: TurnstileCaptchaProps) => {
     widgetId = window.turnstile!.render(containerRef, {
       sitekey: props.siteKey,
       theme: "auto",
+      retry: "never",
       callback: (token: string) => props.onSuccess(token),
       "expired-callback": () => props.onExpire(),
       "error-callback": () => props.onError(),

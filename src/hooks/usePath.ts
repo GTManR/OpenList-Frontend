@@ -2,6 +2,7 @@ import axios, { Canceler } from "axios"
 import {
   appendObjs,
   password,
+  folderTurnstileToken,
   ObjStore,
   State,
   getPagination,
@@ -50,6 +51,7 @@ export const usePath = () => {
       new axios.CancelToken((c) => {
         cancelObj = c
       }),
+      folderTurnstileToken(),
     ),
   )
   const pagination = getPagination()
@@ -77,6 +79,7 @@ export const usePath = () => {
         new axios.CancelToken((c) => {
           cancelList = c
         }),
+        folderTurnstileToken(),
       )
     },
   )

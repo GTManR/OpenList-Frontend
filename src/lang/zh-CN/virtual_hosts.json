@@ -1,0 +1,9 @@
+{
+  "domain": "域名",
+  "domain_help": "要绑定的域名（如：blog.example.com）",
+  "path": "路径",
+  "path_help": "映射此域名的 OpenList 路径",
+  "enabled": "启用",
+  "web_hosting": "Web 托管",
+  "web_hosting_help": "启用后，HTML 文件将直接提供，而不是显示文件浏览器"
+}

@@ -1,5 +1,5 @@
 import { Resp } from "~/types"
-import { bus, notify } from "."
+import { bus, changeToken, notify } from "."
 
 export const handleResp = <T>(
   resp: Resp<T>,
@@ -15,6 +15,10 @@ export const handleResp = <T>(
   } else {
     notify_error && notify.error(resp.message)
     if (auth && resp.code === 401) {
+      changeToken()
+      if (location.pathname.endsWith("/@login")) {
+        return
+      }
       if (location.pathname === "/@manage") {
         bus.emit("to", "/")
       } else {

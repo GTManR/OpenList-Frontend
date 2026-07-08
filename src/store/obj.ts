@@ -230,6 +230,15 @@ export const setPassword = (password: string) => {
   cookieStorage.setItem("browser-password", password)
 }
 
+// Turnstile token used when submitting a folder (meta) password. Kept in memory
+// only because the token is single-use; it is refreshed by the captcha widget.
+const [_folderTurnstileToken, _setFolderTurnstileToken] =
+  createSignal<string>("")
+export { _folderTurnstileToken as folderTurnstileToken }
+export const setFolderTurnstileToken = (token: string) => {
+  _setFolderTurnstileToken(token)
+}
+
 const getCountStr = (
   objs: StoreObj[],
   prefix: string,

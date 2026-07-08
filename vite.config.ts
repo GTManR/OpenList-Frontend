@@ -106,9 +106,10 @@ export default defineConfig({
   // },
   server: {
     host: "0.0.0.0",
+    port: Number(process.env.OPENLIST_FRONTEND_PORT || 5173),
     proxy: {
       "/api": {
-        target: "http://localhost:5244",
+        target: `http://localhost:${process.env.OPENLIST_BACKEND_PORT || "5244"}`,
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ""),
       },

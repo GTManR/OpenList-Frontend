@@ -56,9 +56,12 @@ const Login = () => {
   const [needOpt, setNeedOpt] = createSignal(false)
   const turnstileSiteKey = () => getSetting("turnstile_site_key")
   const [turnstileToken, setTurnstileToken] = createSignal("")
+  let turnstileErrorNotified = false
   let turnstileRef: TurnstileCaptchaRef | undefined
-  const turnstileRequired = () =>
-    !!turnstileSiteKey() && !needOpt() && !useauthn()
+  // Keep Turnstile required across both the credential step and the 2FA
+  // second step (excluding WebAuthn), so the backend can demand a fresh token
+  // on every login request instead of skipping it for the otp submission.
+  const turnstileRequired = () => !!turnstileSiteKey() && !useauthn()
   const [loading, data] = useLoading(
     async (): Promise<Resp<{ token: string }>> => {
       const payload: Record<string, string> = {
@@ -310,20 +313,26 @@ const Login = () => {
               {t("login.forget")}
             </Text>
           </Flex>
-          <Show when={turnstileRequired()}>
-            <TurnstileCaptcha
-              siteKey={turnstileSiteKey()}
-              ref={(ref) => {
-                turnstileRef = ref
-              }}
-              onSuccess={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken("")}
-              onError={() => {
-                setTurnstileToken("")
+        </Show>
+        <Show when={turnstileRequired()}>
+          <TurnstileCaptcha
+            siteKey={turnstileSiteKey()}
+            ref={(ref) => {
+              turnstileRef = ref
+            }}
+            onSuccess={(token) => {
+              turnstileErrorNotified = false
+              setTurnstileToken(token)
+            }}
+            onExpire={() => setTurnstileToken("")}
+            onError={() => {
+              setTurnstileToken("")
+              if (!turnstileErrorNotified) {
+                turnstileErrorNotified = true
                 notify.error(t("login.turnstile_error"))
-              }}
-            />
-          </Show>
+              }
+            }}
+          />
         </Show>
         <HStack w="$full" spacing="$2">
           <Show when={!useauthn()}>

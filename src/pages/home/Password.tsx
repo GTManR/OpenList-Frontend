@@ -16,6 +16,7 @@ type PasswordProps = {
   password: () => string
   setPassword: (s: string) => void
   enterCallback: () => void
+  captcha?: JSXElement
   children?: JSXElement
 }
 
@@ -45,6 +46,7 @@ const Password = (props: PasswordProps) => {
         }}
         onInput={(e) => props.setPassword(e.currentTarget.value)}
       />
+      {props.captcha}
       <HStack w="$full" justifyContent="space-between">
         <Flex
           fontSize="$sm"

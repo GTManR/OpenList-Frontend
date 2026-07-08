@@ -19,12 +19,14 @@ export const fsGet = (
   path: string = "/",
   password = "",
   cancelToken?: CancelToken,
+  turnstileToken = "",
 ): Promise<FsGetResp> => {
   return r.post(
     "/fs/get",
     {
       path: path,
       password: password,
+      turnstile_token: turnstileToken,
     },
     {
       cancelToken: cancelToken,
@@ -38,6 +40,7 @@ export const fsList = (
   per_page = 0,
   refresh = false,
   cancelToken?: CancelToken,
+  turnstileToken = "",
 ): Promise<FsListResp> => {
   return r.post(
     "/fs/list",
@@ -47,6 +50,7 @@ export const fsList = (
       page,
       per_page,
       refresh,
+      turnstile_token: turnstileToken,
     },
     {
       cancelToken: cancelToken,

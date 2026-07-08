@@ -5,28 +5,45 @@ import { AiOutlineGoogle, AiOutlineDingtalk } from "solid-icons/ai"
 import { base_path, changeToken, r } from "~/utils"
 import { getSetting, getSettingBool } from "~/store"
 import { useRouter } from "~/hooks"
-import { onCleanup } from "solid-js"
+import { onCleanup, onMount } from "solid-js"
 
 const SSOLogin = () => {
   const ssoSignEnabled = getSettingBool("sso_login_enabled")
   const loginPlatform = getSetting("sso_login_platform")
   const useCompatibility = getSettingBool("sso_compatibility_mode")
   const { searchParams, to } = useRouter()
+  // Only trust a ?token= query param when SSO compatibility mode is the
+  // active flow that actually produces it (server-side redirect after a
+  // validated OAuth callback). Otherwise this becomes an unauthenticated
+  // token-injection / login-CSRF vector via a crafted link.
   const token = searchParams["token"]
-  if (token != undefined && token != "") {
+  if (ssoSignEnabled && useCompatibility && token != undefined && token != "") {
     changeToken(token)
     to(decodeURIComponent(searchParams.redirect || base_path || "/"), true)
   }
-  function messageEvent(event: MessageEvent) {
-    const data = event.data
-    if (data.token) {
-      changeToken(data.token)
-      to(decodeURIComponent(searchParams.redirect || base_path || "/"), true)
+  onMount(() => {
+    if (!ssoSignEnabled) {
+      return
     }
-  }
-  window.addEventListener("message", messageEvent)
-  onCleanup(() => {
-    window.removeEventListener("message", messageEvent)
+    function messageEvent(event: MessageEvent) {
+      if (event.origin !== window.location.origin) {
+        return
+      }
+      const data = event.data
+      if (
+        data &&
+        typeof data === "object" &&
+        typeof data.token === "string" &&
+        data.token
+      ) {
+        changeToken(data.token)
+        to(decodeURIComponent(searchParams.redirect || base_path || "/"), true)
+      }
+    }
+    window.addEventListener("message", messageEvent)
+    onCleanup(() => {
+      window.removeEventListener("message", messageEvent)
+    })
   })
   if (ssoSignEnabled) {
     const login = () => {
