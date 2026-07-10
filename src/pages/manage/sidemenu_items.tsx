@@ -14,6 +14,7 @@ import {
   BsBucket,
   BsHddNetwork,
   BsArrowLeftRight,
+  BsShieldFill,
 } from "solid-icons/bs"
 import { FiLogIn } from "solid-icons/fi"
 import { SiMetabase } from "solid-icons/si"
@@ -98,6 +99,12 @@ export const side_menu_items: SideMenuItem[] = [
         icon: BsArrowLeftRight,
         to: "/@manage/settings/traffic",
         component: () => <CommonSettings group={Group.TRAFFIC} />,
+      },
+      {
+        title: "manage.sidemenu.security",
+        icon: BsShieldFill,
+        to: "/@manage/settings/security",
+        component: () => <CommonSettings group={Group.SECURITY} />,
       },
       {
         title: "manage.sidemenu.other",
