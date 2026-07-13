@@ -14,6 +14,8 @@ import { useRouter, useLink, useT, usePath, getGlobalPage } from "~/hooks"
 import { getPagination, objStore, setShouldKeepState } from "~/store"
 import { ObjType } from "~/types"
 import { convertURL, getPlatform, pathDir } from "~/utils"
+import { startWatchDwell } from "~/hooks/useWatchDwell"
+import { folderKeyFromFile } from "~/store/watch_history"
 import Artplayer from "artplayer"
 import { SelectWrapper } from "~/components"
 import { BsArrowRight } from "solid-icons/bs"
@@ -231,6 +233,9 @@ export const VideoBox = (props: {
                     name: objStore.obj.name,
                     d_url: currentObjLink(true),
                   })}
+                  onClick={() => {
+                    startWatchDwell(folderKeyFromFile(pathname()), pathname())
+                  }}
                 >
                   <Image
                     m="0 auto"

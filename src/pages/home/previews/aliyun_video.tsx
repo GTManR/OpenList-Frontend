@@ -1,6 +1,7 @@
 import { Box, Center } from "@hope-ui/solid"
 import { Show, createMemo, createSignal, onCleanup, onMount } from "solid-js"
 import { useRouter, useLink, useFetch } from "~/hooks"
+import { useWatchDwell } from "~/hooks/useWatchDwell"
 import {
   getMainColor,
   getSettingBool,
@@ -55,6 +56,7 @@ export interface Meta {
 
 const Preview = () => {
   const { pathname, searchParams } = useRouter()
+  useWatchDwell(pathname())
   const { proxyLink } = useLink()
   const navigate = useNavigate()
   const videos = createMemo(() =>

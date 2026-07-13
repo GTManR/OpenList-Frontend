@@ -3,6 +3,7 @@
     "name": "Name",
     "size": "Size",
     "modified": "Modified",
+    "last_watched": "Last watched",
     "count": {
       "count": "{{folders}} folders, {{files}} files in total",
       "count_folders": "{{folders}} folders in total",

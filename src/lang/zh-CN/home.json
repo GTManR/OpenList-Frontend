@@ -3,6 +3,7 @@
     "name": "名称",
     "size": "大小",
     "modified": "修改时间",
+    "last_watched": "上次观看",
     "count": {
       "count": "共有 {{folders}} 个文件夹，{{files}} 个文件",
       "count_folders": "共有 {{folders}} 个文件夹",

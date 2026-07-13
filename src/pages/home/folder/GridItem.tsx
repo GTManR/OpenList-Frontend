@@ -3,6 +3,7 @@ import { Motion } from "solid-motionone"
 import { useContextMenu } from "solid-contextmenu"
 import { batch, Show } from "solid-js"
 import { CenterLoading, LinkWithPush, ImageWithError } from "~/components"
+import { LastWatchedBadge } from "~/components/LastWatchedBadge"
 import { usePath, useRouter, useUtil } from "~/hooks"
 import { checkboxOpen, getMainColor, local, selectIndex } from "~/store"
 import { ObjType, StoreObj } from "~/types"
@@ -24,7 +25,7 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
     />
   )
   const { show } = useContextMenu({ id: 1 })
-  const { pushHref, to } = useRouter()
+  const { pushHref, to, pathname } = useRouter()
   const { openWithDoubleClick, toggleWithClick, restoreSelectionCache } =
     useSelectWithMouse()
   return (
@@ -141,6 +142,9 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
         >
           {props.obj.name}
         </Text>
+        <Show when={props.obj.type === ObjType.VIDEO}>
+          <LastWatchedBadge folderPath={pathname()} fileName={props.obj.name} />
+        </Show>
       </VStack>
     </Motion.div>
   )

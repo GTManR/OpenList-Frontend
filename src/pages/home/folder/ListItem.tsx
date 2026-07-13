@@ -10,6 +10,7 @@ import { Motion } from "solid-motionone"
 import { useContextMenu } from "solid-contextmenu"
 import { batch, Show } from "solid-js"
 import { LinkWithPush } from "~/components"
+import { LastWatchedBadge } from "~/components/LastWatchedBadge"
 import { usePath, useRouter, useUtil } from "~/hooks"
 import {
   checkboxOpen,
@@ -52,7 +53,7 @@ export const ListItem = (props: { obj: StoreObj; index: number }) => {
   }
   const { setPathAs } = usePath()
   const { show } = useContextMenu({ id: 1 })
-  const { pushHref, to } = useRouter()
+  const { pushHref, to, pathname } = useRouter()
   const { openWithDoubleClick, toggleWithClick, restoreSelectionCache } =
     useSelectWithMouse()
   const filenameStyle = () => local["list_item_filename_overflow"]
@@ -161,6 +162,12 @@ export const ListItem = (props: { obj: StoreObj; index: number }) => {
           >
             {props.obj.name}
           </Text>
+          <Show when={props.obj.type === ObjType.VIDEO}>
+            <LastWatchedBadge
+              folderPath={pathname()}
+              fileName={props.obj.name}
+            />
+          </Show>
         </HStack>
         <Show
           fallback={

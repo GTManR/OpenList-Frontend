@@ -1,6 +1,8 @@
 import { Box } from "@hope-ui/solid"
 import { VideoBox } from "./video_box"
 import { createSignal, onCleanup, onMount } from "solid-js"
+import { useRouter } from "~/hooks"
+import { useWatchDwell } from "~/hooks/useWatchDwell"
 import { getSettingBool, objStore } from "~/store"
 import { ObjType } from "~/types"
 import View360, { ControlBar, EquirectProjection } from "@egjs/view360"
@@ -8,6 +10,8 @@ import "@egjs/view360/css/view360.min.css"
 import "./video360.css"
 
 const Preview = () => {
+  const { pathname } = useRouter()
+  useWatchDwell(pathname())
   let viewer: View360
 
   onMount(() => {

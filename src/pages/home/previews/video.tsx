@@ -8,6 +8,7 @@ import {
   onMount,
 } from "solid-js"
 import { useRouter, useLink } from "~/hooks"
+import { useWatchDwell } from "~/hooks/useWatchDwell"
 import {
   getMainColor,
   getSettingBool,
@@ -33,6 +34,7 @@ import "./artplayer.css"
 
 const Preview = () => {
   const { pathname, searchParams } = useRouter()
+  useWatchDwell(pathname())
   const { proxyLink } = useLink()
   const navigate = useNavigate()
   const videos = createMemo(() =>

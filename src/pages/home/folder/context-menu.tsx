@@ -4,7 +4,9 @@ import "solid-contextmenu/dist/style.css"
 import { HStack, Icon, Text, useColorMode, Image } from "@hope-ui/solid"
 import { operations } from "../toolbar/operations"
 import { For, Show } from "solid-js"
-import { bus, convertURL, notify, torrentParse } from "~/utils"
+import { bus, convertURL, notify, pathJoin, torrentParse } from "~/utils"
+import { startWatchDwell } from "~/hooks/useWatchDwell"
+import { folderKeyFromListing } from "~/store/watch_history"
 import { ObjType, UserMethods } from "~/types"
 import {
   getSettingBool,
@@ -37,6 +39,7 @@ const ItemContent = (props: { name: string }) => {
 
 export const ContextMenu = () => {
   const t = useT()
+  const { pathname } = useRouter()
   const { colorMode } = useColorMode()
   const { copySelectedRawLink, copySelectedPreviewPage } = useCopyLink()
   const { batchDownloadSelected, sendToAria2, playlistDownloadSelected } =
@@ -181,6 +184,12 @@ export const ContextMenu = () => {
             {(player) => (
               <Item
                 onClick={({ props }) => {
+                  const folderPath = folderKeyFromListing(pathname())
+                  const filePath = pathJoin(
+                    folderPath === "/" ? "" : folderPath,
+                    props.name,
+                  )
+                  startWatchDwell(folderPath, filePath)
                   const href = convertURL(player.scheme, {
                     raw_url: "",
                     name: props.name,
