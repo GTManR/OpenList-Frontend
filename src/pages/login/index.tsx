@@ -23,6 +23,7 @@ import {
   base_path,
   handleResp,
   hashPwd,
+  isPrivateHost,
 } from "~/utils"
 import { PResp, Resp } from "~/types"
 import LoginBg from "./LoginBg"
@@ -61,7 +62,9 @@ const Login = () => {
   // Keep Turnstile required across both the credential step and the 2FA
   // second step (excluding WebAuthn), so the backend can demand a fresh token
   // on every login request instead of skipping it for the otp submission.
-  const turnstileRequired = () => !!turnstileSiteKey() && !useauthn()
+  // Intranet / localhost pages skip the widget; the backend also bypasses by RemoteAddr.
+  const turnstileRequired = () =>
+    !!turnstileSiteKey() && !useauthn() && !isPrivateHost()
   const [loading, data] = useLoading(
     async (): Promise<Resp<{ token: string }>> => {
       const payload: Record<string, string> = {

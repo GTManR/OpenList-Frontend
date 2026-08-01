@@ -39,3 +39,27 @@ export const getPlatform = () => {
 
   return "Unknown"
 }
+
+/** True when the page is opened via localhost / private IP / .local (intranet). */
+export const isPrivateHost = (hostname = window?.location?.hostname ?? "") => {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase()
+  if (!host) return false
+  if (host === "localhost" || host === "::1" || host.endsWith(".local")) {
+    return true
+  }
+  const parts = host.split(".").map((p) => Number(p))
+  if (
+    parts.length === 4 &&
+    parts.every((n) => Number.isInteger(n) && n >= 0 && n <= 255)
+  ) {
+    const [a, b] = parts
+    return (
+      a === 10 ||
+      a === 127 ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 169 && b === 254)
+    )
+  }
+  return false
+}
