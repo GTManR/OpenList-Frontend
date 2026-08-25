@@ -20,21 +20,22 @@ import { SwitchColorMode, SwitchLanguageWhite } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
 import { SideMenu } from "./SideMenu"
 import { side_menu_items } from "./sidemenu_items"
-import { changeToken, notify, r } from "~/utils"
+import { changeToken, handleResp, notify, r } from "~/utils"
 import { PResp } from "~/types"
 const { isOpen, onOpen, onClose } = createDisclosure()
-const [logOutReqLoading, logOutReq] = useFetch(
-  (): PResp<any> => r.get("/auth/logout"),
+const [logOutReqLoading, logOutReq] = useFetch((): PResp<any> =>
+  r.get("/auth/logout"),
 )
 
 const Header = () => {
   const t = useT()
   const { to } = useRouter()
   const logOut = async () => {
-    await logOutReq()
-    changeToken()
-    notify.success(t("manage.logout_success"))
-    to(`/@login?redirect=${encodeURIComponent(location.pathname)}`)
+    handleResp(await logOutReq(), () => {
+      changeToken()
+      notify.success(t("manage.logout_success"))
+      to(`/@login?redirect=${encodeURIComponent(location.pathname)}`)
+    })
   }
   return (
     <Box

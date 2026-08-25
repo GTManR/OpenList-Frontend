@@ -3,7 +3,7 @@ import { useCopyLink, useDownload, useLink, useRouter, useT } from "~/hooks"
 import "solid-contextmenu/dist/style.css"
 import { HStack, Icon, Text, useColorMode, Image } from "@hope-ui/solid"
 import { operations } from "../toolbar/operations"
-import { For, Show } from "solid-js"
+import { createMemo, For, Show } from "solid-js"
 import { bus, convertURL, notify, pathJoin, torrentParse } from "~/utils"
 import { startWatchDwell } from "~/hooks/useWatchDwell"
 import { folderKeyFromListing } from "~/store/watch_history"
@@ -18,6 +18,7 @@ import {
   userCan,
 } from "~/store"
 import { players } from "../previews/video_box"
+import { getPreviews } from "../previews"
 import { BsPlayCircleFill } from "solid-icons/bs"
 import { isArchive } from "~/store/archive"
 import axios from "axios"
@@ -48,7 +49,15 @@ export const ContextMenu = () => {
     return UserMethods.is_admin(me()) || getSettingBool("package_download")
   }
   const { rawLink } = useLink()
-  const { isShare } = useRouter()
+  const { isShare, pushHref, to } = useRouter()
+  const openWithPreviews = createMemo(() => {
+    const objs = selectedObjs()
+    if (objs.length !== 1) return []
+    const obj = objs[0]
+    if (obj.is_dir) return []
+    return getPreviews({ ...obj, provider: objStore.provider })
+    // .filter((p) => p.key !== "download")
+  })
   return (
     <Menu
       id={1}
@@ -56,6 +65,21 @@ export const ContextMenu = () => {
       theme={colorMode() !== "dark" ? "light" : "dark"}
       style="z-index: var(--hope-zIndices-popover)"
     >
+      <Show when={openWithPreviews().length > 0}>
+        <Submenu label={<ItemContent name="open_with" />}>
+          <For each={openWithPreviews()}>
+            {(preview) => (
+              <Item
+                onClick={({ props }) => {
+                  to(`${pushHref(props.name)}?preview=${preview.key}`)
+                }}
+              >
+                {preview.name}
+              </Item>
+            )}
+          </For>
+        </Submenu>
+      </Show>
       <For each={["rename", "move", "copy", "delete"] as const}>
         {(name) => (
           <Item
